@@ -3,7 +3,7 @@ from threading import Thread
 import random 
 
 
-HOST = '192.168.100.28'  # endereço IP
+HOST = 'ip'  # endereço IP
 PORT = 20000        # Porta utilizada pelo servidor
 BUFFER_SIZE = 1024  # tamanho do buffer para recepção dos dados
 

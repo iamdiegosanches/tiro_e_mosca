@@ -5,7 +5,7 @@ import socket, sys, pygame
 
 pygame.init()
 
-HOST = '192.168.100.28'
+HOST = 'ip'
 PORT = 20000
 BUFFER_SIZE = 1024
 
