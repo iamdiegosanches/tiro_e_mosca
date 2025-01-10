@@ -5,7 +5,7 @@ import socket, sys, pygame
 
 pygame.init()
 
-HOST = 'ip'
+HOST = '192.168.100.28'
 PORT = 20000
 BUFFER_SIZE = 1024
 
@@ -139,13 +139,15 @@ def main(argv):
                     if exit_button_x < mouse_pos[0] < exit_button_x + 150 and exit_button_y < mouse_pos[1] < exit_button_y + 50:
                         historico.append("Jogador desistiu. FIM DE JOGO!")
                         running = False
+                if event.type == pygame.MOUSEWHEEL:
+                    history_scroll -= event.y
+                    history_scroll = max(0, min(history_scroll, len(historico) - 5))
 
                 try:
                     data = s.recv(BUFFER_SIZE)
                     if data:
                         texto_recebido = data.decode('utf-8')
                         historico.append(texto_recebido)
-                        print(texto_recebido)
                         if texto_recebido.endswith("3t0m"):
                             acertou = True
 
