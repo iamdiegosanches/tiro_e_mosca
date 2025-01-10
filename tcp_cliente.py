@@ -1,46 +1,164 @@
 # -*- coding: utf-8 -*-
 __author__ = "Alvaro Braz e Diego Sanches"
 
-import socket, sys
+import socket, sys, pygame
 
+pygame.init()
 
-HOST = '192.168.100.28'  # endereço IP
-PORT = 20000        # Porta utilizada pelo servidor
-BUFFER_SIZE = 1024  # tamanho do buffer para recepção dos dados
+HOST = '192.168.100.28'
+PORT = 20000
+BUFFER_SIZE = 1024
 
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Cliente Tiro e Mosca")
 
-def main(argv): 
+history_scroll = 0
+historico = []
+input_values = ["", "", ""]
+
+# Cores interface
+BACKGROUND_COLOR = (195, 219, 230)
+INPUT_COLOR = (255, 255, 255)
+HISTORY_COLOR = (0, 0, 0)
+TEXT_COLOR = (255, 255, 255)
+BUTTON_COLOR = (0, 128, 0)
+BUTTON_TEXT_COLOR = (255, 255, 255)
+BUTTON_HOVER_COLOR = (5, 48, 5)
+EXIT_BUTTON_COLOR = (255, 69, 0)
+EXIT_BUTTON_HOVER_COLOR = (79, 23, 2)
+
+# Fontes
+font_title = pygame.font.Font(pygame.font.match_font('arial'), 50)
+font_input = pygame.font.Font(pygame.font.match_font('arial'), 60)
+font_history = pygame.font.Font(pygame.font.match_font('arial'), 30)
+font_button = pygame.font.Font(pygame.font.match_font('arial'), 40)
+
+def draw_text_centered(text, font, color, surface, x, y):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(x, y))
+    surface.blit(text_surface, text_rect)
+
+def draw_input_box(screen, values):
+    gap = 10
+    box_width = 60
+    x_start = (SCREEN_WIDTH - (3 * box_width + 2 * gap)) // 2
+    y_start = SCREEN_HEIGHT // 2 - 50
+
+    for i, value in enumerate(values):
+        rect = pygame.Rect(x_start + i * (box_width + gap), y_start, box_width, 80)
+        pygame.draw.rect(screen, INPUT_COLOR, rect, border_radius=5)
+        text_surface = font_input.render(value, True, HISTORY_COLOR)
+        screen.blit(text_surface, (rect.x + 15, rect.y + 10))
+
+def draw_button(screen, x, y, width, height, text, color, hover_color):
+    button_rect = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(screen, hover_color if button_rect.collidepoint(pygame.mouse.get_pos()) else color, button_rect, border_radius=10)
+    text_surface = font_button.render(text, True, BUTTON_TEXT_COLOR)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+def draw_history(screen, history, scroll):
+    x, y = 50, SCREEN_HEIGHT - 150
+    visible_lines = 5
+    start_index = max(0, len(history) - visible_lines - scroll)
+    end_index = len(history) - scroll
+    for line in history[start_index:end_index]:
+        text_surface = font_history.render(line, True, TEXT_COLOR)
+        screen.blit(text_surface, (x, y))
+        y += 30
+
+def main(argv):
+    global history_scroll
+    running = True
+    acertou = False
+
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.1)  # Timeout para evitar bloqueios
             s.connect((HOST, PORT))
             print("Aplicação cliente executando!")
-            while(True):
+            while running:
+                screen.fill(BACKGROUND_COLOR)
 
-                texto = input("Digite o palpite a ser enviado ao servidor:\n")
-                s.send(texto.encode()) #texto.encode - converte a string para bytes
+                # entrada
+                draw_input_box(screen, input_values)
 
-                data = s.recv(BUFFER_SIZE)
-                texto_recebido = data.decode('utf-8') # converte os bytes em string
+                # botão Enviar
+                button_x, button_y = SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 50
+                draw_button(screen, button_x, button_y, 150, 50, "Enviar", BUTTON_COLOR, BUTTON_HOVER_COLOR)
 
-                print(texto_recebido)
+                # botão Desistir
+                exit_button_x, exit_button_y = SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 120
+                draw_button(screen, exit_button_x, exit_button_y, 150, 50, "Desistir", EXIT_BUTTON_COLOR, EXIT_BUTTON_HOVER_COLOR)
 
-                if (texto_recebido.endswith('3t0m')):
-                    print('Você acertou!')
-                    print('vai encerrar o socket cliente!')
-                    s.close()
-                    break
+                # histórico
+                draw_history(screen, historico, history_scroll)
 
-                if (texto == '0'):
-                    print('vai encerrar o socket cliente!')
-                    s.close()
-                    break
+                if acertou: draw_text_centered("Você venceu!!!", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, 100)
 
+                pygame.display.flip()
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+
+                    if event.type == pygame.KEYDOWN:
+                        if event.key in [pygame.K_0, pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, 
+                                        pygame.K_6, pygame.K_7, pygame.K_8, pygame.K_9, pygame.K_KP0, pygame.K_KP1, 
+                                        pygame.K_KP2, pygame.K_KP3, pygame.K_KP4, pygame.K_KP5, pygame.K_KP6, 
+                                        pygame.K_KP7, pygame.K_KP8, pygame.K_KP9]:
+                            for i in range(3):
+                                if input_values[i] == "":
+                                    input_values[i] = event.unicode
+                                    break
+
+                        elif event.key == pygame.K_BACKSPACE:
+                            for i in range(2, -1, -1):
+                                if input_values[i] != "":
+                                    input_values[i] = ""
+                                    break
+                                
+                        elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                            if all(len(val) == 1 for val in input_values):
+                                s.send("".join(input_values).encode())
+                                input_values[:] = ["", "", ""]
+                                
+                        elif event.key == pygame.K_UP:
+                            history_scroll = min(history_scroll + 1, len(historico) - 5)
+
+                        elif event.key == pygame.K_DOWN:
+                            history_scroll = max(0, history_scroll - 1)
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if button_x < mouse_pos[0] < button_x + 150 and button_y < mouse_pos[1] < button_y + 50:
+                        if all(len(val) == 1 for val in input_values):
+                            s.send("".join(input_values).encode())
+                            input_values[:] = ["", "", ""]
+                    if exit_button_x < mouse_pos[0] < exit_button_x + 150 and exit_button_y < mouse_pos[1] < exit_button_y + 50:
+                        historico.append("Jogador desistiu. FIM DE JOGO!")
+                        running = False
+
+                try:
+                    data = s.recv(BUFFER_SIZE)
+                    if data:
+                        texto_recebido = data.decode('utf-8')
+                        historico.append(texto_recebido)
+                        print(texto_recebido)
+                        if texto_recebido.endswith("3t0m"):
+                            acertou = True
+
+                except socket.timeout:
+                    pass  # Ignorar ausência de dados
 
     except Exception as error:
         print("Exceção - Programa será encerrado!")
-        print(error)
-        return
+        print(f"Erro: {error}")
+    finally:
+        pygame.quit()
+        print("Cliente encerrado!")
+        s.close
 
-
-if __name__ == "__main__":   
+if __name__ == "__main__":
     main(sys.argv[1:])
