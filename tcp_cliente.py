@@ -5,7 +5,7 @@ import socket, sys, pygame
 
 pygame.init()
 
-HOST = '192.168.100.28'
+HOST = 'ip'
 PORT = 20000
 BUFFER_SIZE = 1024
 
@@ -13,9 +13,6 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Cliente Tiro e Mosca")
 
-history_scroll = 0
-historico = []
-input_values = ["", "", ""]
 
 # Cores interface
 BACKGROUND_COLOR = (195, 219, 230)
@@ -27,6 +24,7 @@ BUTTON_TEXT_COLOR = (255, 255, 255)
 BUTTON_HOVER_COLOR = (5, 48, 5)
 EXIT_BUTTON_COLOR = (255, 69, 0)
 EXIT_BUTTON_HOVER_COLOR = (79, 23, 2)
+HOVER_COLOR = (40, 76, 99)
 
 # Fontes
 font_title = pygame.font.Font(pygame.font.match_font('arial'), 50)
@@ -34,10 +32,46 @@ font_input = pygame.font.Font(pygame.font.match_font('arial'), 60)
 font_history = pygame.font.Font(pygame.font.match_font('arial'), 30)
 font_button = pygame.font.Font(pygame.font.match_font('arial'), 40)
 
+history_scroll = 0
+historico = []
+input_values = ["", "", ""]
+
 def draw_text_centered(text, font, color, surface, x, y):
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect(center=(x, y))
     surface.blit(text_surface, text_rect)
+
+def main_menu():
+    """ Exibe o menu inicial e retorna o modo de jogo escolhido. """
+    while True:
+        screen.fill(BACKGROUND_COLOR)
+
+        # Título
+        draw_text_centered("Escolha o modo de jogo", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, 100)
+
+        # Botão 1: Modo Multiplayer
+        multiplayer_rect = pygame.Rect(100, 250, 250, 100)
+        pygame.draw.rect(screen, HOVER_COLOR if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else BUTTON_COLOR, multiplayer_rect, border_radius=10)
+        draw_text_centered("Multiplayer", font_button, TEXT_COLOR, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
+
+        # Botão 2: Contra Computador
+        computer_rect = pygame.Rect(450, 250, 250, 100)
+        pygame.draw.rect(screen, HOVER_COLOR if computer_rect.collidepoint(pygame.mouse.get_pos()) else BUTTON_COLOR, computer_rect, border_radius=10)
+        draw_text_centered("Computador", font_button, TEXT_COLOR, screen, computer_rect.centerx, computer_rect.centery)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if multiplayer_rect.collidepoint(mouse_pos):
+                    return "multiplayer"
+                if computer_rect.collidepoint(mouse_pos):
+                    return "computador"
 
 def draw_input_box(screen, values):
     gap = 10
@@ -70,6 +104,7 @@ def draw_history(screen, history, scroll):
 
 def main(argv):
     global history_scroll
+    mode = main_menu()  
     running = True
     acertou = False
 
@@ -78,6 +113,7 @@ def main(argv):
             s.settimeout(0.1)  # Timeout para evitar bloqueios
             s.connect((HOST, PORT))
             print("Aplicação cliente executando!")
+            print(f"Modo escolhido: {mode}. Iniciando o jogo...")
             while running:
                 screen.fill(BACKGROUND_COLOR)
 
@@ -130,18 +166,18 @@ def main(argv):
                         elif event.key == pygame.K_DOWN:
                             history_scroll = max(0, history_scroll - 1)
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_pos = pygame.mouse.get_pos()
-                    if button_x < mouse_pos[0] < button_x + 150 and button_y < mouse_pos[1] < button_y + 50:
-                        if all(len(val) == 1 for val in input_values):
-                            s.send("".join(input_values).encode())
-                            input_values[:] = ["", "", ""]
-                    if exit_button_x < mouse_pos[0] < exit_button_x + 150 and exit_button_y < mouse_pos[1] < exit_button_y + 50:
-                        historico.append("Jogador desistiu. FIM DE JOGO!")
-                        running = False
-                if event.type == pygame.MOUSEWHEEL:
-                    history_scroll -= event.y
-                    history_scroll = max(0, min(history_scroll, len(historico) - 5))
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if button_x < mouse_pos[0] < button_x + 150 and button_y < mouse_pos[1] < button_y + 50:
+                            if all(len(val) == 1 for val in input_values):
+                                s.send("".join(input_values).encode())
+                                input_values[:] = ["", "", ""]
+                        if exit_button_x < mouse_pos[0] < exit_button_x + 150 and exit_button_y < mouse_pos[1] < exit_button_y + 50:
+                            historico.append("Jogador desistiu. FIM DE JOGO!")
+                            running = False
+                    if event.type == pygame.MOUSEWHEEL:
+                        history_scroll -= event.y
+                        history_scroll = max(0, min(history_scroll, len(historico) - 5))
 
                 try:
                     data = s.recv(BUFFER_SIZE)
