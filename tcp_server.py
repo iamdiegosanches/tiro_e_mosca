@@ -51,11 +51,15 @@ def on_new_client(clientsocket, addr):
                 break
             texto_recebido = data.decode()
 
+            if texto_recebido == 'novo_jogo':
+                numero_computador = gera_numero_aleatorio()
+                continue
+
             if texto_recebido == '0':
-                    print('\tvai encerrar o socket do cliente {} !'.format(addr[0]))
-                    clientsocket.send('sair'.encode())
-                    clientsocket.close() 
-                    return
+                print('\tvai encerrar o socket do cliente {} !'.format(addr[0]))
+                clientsocket.send('sair'.encode())
+                clientsocket.close() 
+                return
             
             if len(texto_recebido) == 3 and texto_recebido.isdigit():       
 
@@ -67,8 +71,6 @@ def on_new_client(clientsocket, addr):
 
                 if tiro == 3:
                     print('ACERTOU')
-                    clientsocket.close()
-                    return
 
             else:
                 print("Texto recebido em formato inválido")
