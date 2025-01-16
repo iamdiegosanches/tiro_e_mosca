@@ -24,7 +24,8 @@ BUTTON_TEXT_COLOR = (255, 255, 255)
 BUTTON_HOVER_COLOR = (5, 48, 5)
 EXIT_BUTTON_COLOR = (255, 69, 0)
 EXIT_BUTTON_HOVER_COLOR = (79, 23, 2)
-HOVER_COLOR = (40, 76, 99)
+MENU_BUTTON_COLOR = (82, 154, 179)
+MENU_HOVER_COLOR = (40, 76, 99)
 
 # Fontes
 font_title = pygame.font.Font(pygame.font.match_font('arial'), 50)
@@ -42,7 +43,6 @@ def draw_text_centered(text, font, color, surface, x, y):
     surface.blit(text_surface, text_rect)
 
 def main_menu():
-    """ Exibe o menu inicial e retorna o modo de jogo escolhido. """
     while True:
         screen.fill(BACKGROUND_COLOR)
 
@@ -51,12 +51,12 @@ def main_menu():
 
         # Botão 1: Modo Multiplayer
         multiplayer_rect = pygame.Rect(100, 250, 250, 100)
-        pygame.draw.rect(screen, HOVER_COLOR if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else BUTTON_COLOR, multiplayer_rect, border_radius=10)
+        pygame.draw.rect(screen, MENU_HOVER_COLOR if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else MENU_BUTTON_COLOR, multiplayer_rect, border_radius=10)
         draw_text_centered("Multiplayer", font_button, TEXT_COLOR, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
 
         # Botão 2: Contra Computador
         computer_rect = pygame.Rect(450, 250, 250, 100)
-        pygame.draw.rect(screen, HOVER_COLOR if computer_rect.collidepoint(pygame.mouse.get_pos()) else BUTTON_COLOR, computer_rect, border_radius=10)
+        pygame.draw.rect(screen, MENU_HOVER_COLOR if computer_rect.collidepoint(pygame.mouse.get_pos()) else MENU_BUTTON_COLOR, computer_rect, border_radius=10)
         draw_text_centered("Computador", font_button, TEXT_COLOR, screen, computer_rect.centerx, computer_rect.centery)
 
         pygame.display.flip()
