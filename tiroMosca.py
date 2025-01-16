@@ -74,7 +74,6 @@ class TiroMosca:
     def reset(self):
         self.turn = 0
         self.winner = None
-        self.ready = False
         self.secret = [["" for _ in range(3)] for _ in range(2)]
         self.mosca = 0
         self.tiro = 0

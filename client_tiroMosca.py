@@ -1,5 +1,6 @@
 import pygame
 from network import Network
+from tiroMosca import TiroMosca
 
 # Configurações da janela
 width = 800
@@ -75,7 +76,7 @@ def get_player_name():
     return name.strip()
 
 
-def set_secret_number(n, player):
+def set_secret_number(n):
     """Define os números secretos do jogador e os envia ao servidor."""
     secret = []
     feedback = ""
@@ -116,57 +117,58 @@ def draw_game(window, game, player, player_name, guess, feedback):
     """Desenha o estado do jogo na tela."""
     window.fill(bg_color)
 
-    if not game.ready:
-        text = font.render("Aguardando outro jogador...", True, highlight_color)
-        screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
-    elif not game.post_secret:
-        text = font.render("Aguardando ambos os códigos secretos...", True, highlight_color)
-        screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
-    else:
-        # Mostrar turno e resultados
-        turno_texto = "Sua vez" if game.turn == player else "Vez do adversário"
-        turno_cor = success_color if game.turn == player else highlight_color
-        turno_render = font.render(turno_texto, True, turno_cor)
-        window.blit(turno_render, (10, 10))
+    if isinstance(game, TiroMosca):
+        if not game.ready:
+            text = font.render("Aguardando outro jogador...", True, highlight_color)
+            screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
+        elif not game.post_secret:
+            text = font.render("Aguardando ambos os códigos secretos...", True, highlight_color)
+            screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
+        else:
+            # Mostrar turno e resultados
+            turno_texto = "Sua vez" if game.turn == player else "Vez do adversário"
+            turno_cor = success_color if game.turn == player else highlight_color
+            turno_render = font.render(turno_texto, True, turno_cor)
+            window.blit(turno_render, (10, 10))
 
-        # Exibir histórico de palpites do jogador atual
-        history_y_player = 100
-        player_history_title = font.render("Seus palpites:", True, text_color)
-        window.blit(player_history_title, (10, 70))
+            # Exibir histórico de palpites do jogador atual
+            history_y_player = 100
+            player_history_title = font.render("Seus palpites:", True, text_color)
+            window.blit(player_history_title, (10, 70))
 
-        for entry in game.history[player][-5:]:  # Últimos 5 palpites
-            palpite, tiros, moscas = entry
-            history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
-            history_render = font_history.render(history_text, True, text_color)
-            window.blit(history_render, (10, history_y_player))
-            history_y_player += 30
+            for entry in game.history[player][-5:]:  # Últimos 5 palpites
+                palpite, tiros, moscas = entry
+                history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
+                history_render = font_history.render(history_text, True, text_color)
+                window.blit(history_render, (10, history_y_player))
+                history_y_player += 30
 
-        # Exibir histórico de palpites do adversário
-        history_y_opponent = 100
-        opponent = 1 - player
-        opponent_history_title = font.render("Palpites do adversário:", True, text_color)
-        window.blit(opponent_history_title, (400, 70))
+            # Exibir histórico de palpites do adversário
+            history_y_opponent = 100
+            opponent = 1 - player
+            opponent_history_title = font.render("Palpites do adversário:", True, text_color)
+            window.blit(opponent_history_title, (400, 70))
 
-        for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
-            palpite, tiros, moscas = entry
-            history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
-            history_render = font_history.render(history_text, True, text_color)
-            window.blit(history_render, (400, history_y_opponent))
-            history_y_opponent += 30
+            for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
+                palpite, tiros, moscas = entry
+                history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
+                history_render = font_history.render(history_text, True, text_color)
+                window.blit(history_render, (400, history_y_opponent))
+                history_y_opponent += 30
 
-        # Exibir feedback atual
-        feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
-        window.blit(feedback_render, (10, 500))
+            # Exibir feedback atual
+            feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
+            window.blit(feedback_render, (10, 500))
 
-        # Exibir retângulos de entrada para o palpite
-        draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40,
-                         box_width=60, gap=10)
+            # Exibir retângulos de entrada para o palpite
+            draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40,
+                             box_width=60, gap=10)
 
-        # Exibir vencedor, se houver
-        if game.winner is not None:
-            resultado = "Você venceu!" if game.winner == player else "Você perdeu!"
-            resultado_render = font.render(resultado, True, success_color)
-            screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2))
+            # Exibir vencedor, se houver
+            if game.winner is not None:
+                resultado = "Você venceu!" if game.winner == player else "Você perdeu!"
+                resultado_render = font.render(resultado, True, success_color)
+                screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2))
 
     # Exibir o nome do jogador
     nome_render = font.render(f"Jogador: {player_name}", True, text_color)
@@ -184,11 +186,16 @@ def main():
     player_name = get_player_name()
 
     # Conectar ao servidor
-    player = int(n.getP())
-    print(f"Você é o jogador {player + 1}")
+    try:
+        player = int(n.getP())
+        print(f"Você é o jogador {player + 1}")
+    except Exception as e:
+        print(f"Erro ao conectar ao servidor: {e}")
+        running = False
 
     # Definir número secreto
-    secret = set_secret_number(n, player)
+    secret = set_secret_number(n)
+    print(secret)
 
     feedback = ""
     guess = []
@@ -199,43 +206,73 @@ def main():
 
         try:
             game = n.send("get")
+            if game is None:
+                raise Exception("Jogo desconectado.")
         except Exception as e:
             print(f"Erro ao receber jogo: {e}")
             break
 
         draw_game(screen, game, player, player_name, guess, feedback)
 
-        if game.winner is not None:
-            waiting = True
-            while waiting:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        running = False
-                        pygame.quit()
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        waiting = False
-                        n.send("reset")
+        if isinstance(game, TiroMosca):
+            if game.winner is not None:
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            running = False
+                            pygame.quit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            waiting = False
+                            n.send("reset")
+                            guess = []
+                            feedback = ""
+                            secret = set_secret_number(n)
+                continue
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+
+                if game.ready and game.post_secret and game.turn == player and game.winner is None:
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN and len(guess) == 3:
+                            try:
+                                n.send(f"play:{','.join(map(str, guess))}")
+                                feedback = f"Palpite enviado: {guess}"
+                                guess = []
+                            except Exception as e:
+                                feedback = f"Erro ao enviar palpite: {e}"
+                        elif event.key == pygame.K_BACKSPACE and guess:
+                            guess.pop()
+                        elif event.unicode.isdigit() and len(guess) < 3:
+                            guess.append(int(event.unicode))
+                            feedback = f"Palpite atual: {guess}"
+
+
+def menu_screen():
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        clock.tick(60)
+        screen.fill("purple")
+        fonte = pygame.font.SysFont('comicsans', 60)
+        text = fonte.render("Click to play", True, (255, 255, 255))
+        screen.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
+        pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                run = False
                 pygame.quit()
 
-            if game.ready and game.post_secret and game.turn == player and game.winner is None:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN and len(guess) == 3:
-                        try:
-                            n.send(f"play:{','.join(map(str, guess))}")
-                            feedback = f"Palpite enviado: {guess}"
-                            guess = []
-                        except Exception as e:
-                            feedback = f"Erro ao enviar palpite: {e}"
-                    elif event.key == pygame.K_BACKSPACE and guess:
-                        guess.pop()
-                    elif event.unicode.isdigit() and len(guess) < 3:
-                        guess.append(int(event.unicode))
-                        feedback = f"Palpite atual: {guess}"
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+    main()
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        menu_screen()

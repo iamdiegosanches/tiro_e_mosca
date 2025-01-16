@@ -34,25 +34,25 @@ def threaded_client(conn, player, gameId):
                 if not data:
                     print("Conexão encerrada")
                     break
+                else:
+                    if data == "reset":
+                        game.reset()
+                    elif data == "get":
+                        conn.sendall(pickle.dumps(game))
+                    elif data.startswith("set_numbers"):
+                        _, numbers = data.split(":")
+                        numbers = list(map(int, numbers.split(",")))
+                        print(f"numbers: {numbers}")
+                        if game.set_numbers(player, numbers):
+                            print(f"Jogador {player} definiu o código secreto: {numbers}")
+                        else:
+                            print(f"Jogador {player} tentou redefinir o código secreto.")
+                    elif data.startswith("play"):
+                        _, guess = data.split(":")
+                        guess = list(map(int, guess.split(",")))
+                        game.play(player, guess)
 
-                if data == "reset":
-                    game.reset()
-                elif data == "get":
                     conn.sendall(pickle.dumps(game))
-                elif data.startswith("set_numbers"):
-                    _, numbers = data.split(":")
-                    numbers = list(map(int, numbers.split(",")))
-                    print(f"numbers: {numbers}")
-                    if game.set_numbers(player, numbers):
-                        print(f"Jogador {player} definiu o código secreto: {numbers}")
-                    else:
-                        print(f"Jogador {player} tentou redefinir o código secreto.")
-                elif data.startswith("play"):
-                    _, guess = data.split(":")
-                    guess = list(map(int, guess.split(",")))
-                    game.play(player, guess)
-
-                conn.sendall(pickle.dumps(game))
             else:
                 break
         except Exception as e:
