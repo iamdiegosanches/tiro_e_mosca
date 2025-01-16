@@ -51,13 +51,14 @@ def on_new_client(clientsocket, addr):
                 break
             texto_recebido = data.decode()
 
+            print(texto_recebido)
+            
             if texto_recebido == 'novo_jogo':
                 numero_computador = gera_numero_aleatorio()
                 continue
 
             if texto_recebido == '0':
                 print('\tvai encerrar o socket do cliente {} !'.format(addr[0]))
-                clientsocket.send('sair'.encode())
                 clientsocket.close() 
                 return
             

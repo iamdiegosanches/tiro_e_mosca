@@ -108,6 +108,7 @@ def main(argv):
     mode = main_menu()  
     running = True
     acertou = False
+    desistiu = False
 
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -125,9 +126,6 @@ def main(argv):
                 button_x, button_y = SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 50
                 draw_button(screen, button_x, button_y, 150, 50, "Enviar", BUTTON_COLOR, BUTTON_HOVER_COLOR)
 
-                # botão Desistir
-                exit_button_x, exit_button_y = SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 120
-                draw_button(screen, exit_button_x, exit_button_y, 150, 50, "Desistir", EXIT_BUTTON_COLOR, EXIT_BUTTON_HOVER_COLOR)
 
                 # histórico
                 draw_history(screen, historico, history_scroll)
@@ -137,14 +135,22 @@ def main(argv):
                     # botão Jogar Novamente
                     novo_button_x, novo_button_y = SCREEN_WIDTH // 2 + 200, SCREEN_HEIGHT // 2 + 200
                     draw_button(screen, novo_button_x, novo_button_y, 150, 50, "Novo", EXIT_BUTTON_COLOR, EXIT_BUTTON_HOVER_COLOR)
-                else: 
-                    draw_text_centered("Escolha Seu Palpite", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, 100)
+                else:
                     novo_button_x, novo_button_y = -1000, -1000
+                    if desistiu:
+                        draw_text_centered("Você Desistiu! Comece o novo jogo!", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, 100)
+                    else:
+                        draw_text_centered("Escolha Seu Palpite", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, 100)
+                    
+                    # botão Desistir
+                    exit_button_x, exit_button_y = SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 120
+                    draw_button(screen, exit_button_x, exit_button_y, 150, 50, "Desistir", EXIT_BUTTON_COLOR, EXIT_BUTTON_HOVER_COLOR)
 
                 pygame.display.flip()
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
+                        s.send("".join('0').encode())
                         running = False
 
                     if event.type == pygame.KEYDOWN:
@@ -181,11 +187,13 @@ def main(argv):
                                 s.send("".join(input_values).encode())
                                 input_values[:] = ["", "", ""]
                         if exit_button_x < mouse_pos[0] < exit_button_x + 150 and exit_button_y < mouse_pos[1] < exit_button_y + 50:
-                            historico.append("Jogador desistiu. FIM DE JOGO!")
-                            running = False
+                            s.send("".join('novo_jogo').encode())
+                            desistiu = True
+                            historico = []
                         if novo_button_x < mouse_pos[0] < novo_button_x + 150 and novo_button_y < mouse_pos[1] < novo_button_y + 50:
                             s.send("".join('novo_jogo').encode())
                             acertou = False
+                            desistiu = False
                             historico = []
                     if event.type == pygame.MOUSEWHEEL:
                         history_scroll -= event.y
