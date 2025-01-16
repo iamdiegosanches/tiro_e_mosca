@@ -12,6 +12,7 @@ class TiroMosca:
         self.mosca = 0
         self.tiro = 0
         self.history = [[], []]
+        self.quit = [0, 0]
 
     def set_number(self, player, number, index):
         print(self.secret)
@@ -73,7 +74,6 @@ class TiroMosca:
     def reset(self):
         self.turn = 0
         self.winner = None
-        self.ready = False
         self.secret = [["" for _ in range(3)] for _ in range(2)]
         self.mosca = 0
         self.tiro = 0

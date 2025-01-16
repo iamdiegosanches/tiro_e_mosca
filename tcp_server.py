@@ -1,10 +1,9 @@
 import socket, sys
 from threading import Thread
-import random 
-
+import random
 
 HOST = 'ip'  # endereço IP
-PORT = 20000        # Porta utilizada pelo servidor
+PORT = 20000  # Porta utilizada pelo servidor
 BUFFER_SIZE = 1024  # tamanho do buffer para recepção dos dados
 
 
@@ -14,11 +13,13 @@ def receber_dados(clientsocket):
         if data:
             texto_recebido = data.decode()
             return texto_recebido
-        
+
+
 def gera_numero_aleatorio():
     num_comp = str(random.randint(100, 1000))
-    print(num_comp) # remover depois
+    print(num_comp)  # remover depois
     return num_comp
+
 
 def verifica_palpite(palpite, num_comp):
     tiro, mosca = 0, 0
@@ -41,6 +42,7 @@ def verifica_palpite(palpite, num_comp):
 
     return tiro, mosca
 
+
 def on_new_client(clientsocket, addr):
     numero_computador = gera_numero_aleatorio()
     historico_palpites = []
@@ -52,17 +54,17 @@ def on_new_client(clientsocket, addr):
             texto_recebido = data.decode()
 
             print(texto_recebido)
-            
+
             if texto_recebido == 'novo_jogo':
                 numero_computador = gera_numero_aleatorio()
                 continue
 
             if texto_recebido == '0':
                 print('\tvai encerrar o socket do cliente {} !'.format(addr[0]))
-                clientsocket.close() 
+                clientsocket.close()
                 return
-            
-            if len(texto_recebido) == 3 and texto_recebido.isdigit():       
+
+            if len(texto_recebido) == 3 and texto_recebido.isdigit():
 
                 tiro, mosca = verifica_palpite(texto_recebido, numero_computador)
 
@@ -96,14 +98,13 @@ def main(argv):
                 clientsocket, addr = server_socket.accept()
                 print('\tServidor recebeu conexão do cliente ao cliente no endereço:', addr)
                 print('\tThread para tratar conexão será iniciada')
-                t = Thread(target=on_new_client, args=(clientsocket,addr))
-                t.start()   
+                t = Thread(target=on_new_client, args=(clientsocket, addr))
+                t.start()
     except Exception as error:
         print("\tErro na execução do servidor!!")
-        print(error)        
-        return             
+        print(error)
+        return
 
 
-
-if __name__ == "__main__":   
+if __name__ == "__main__":
     main(sys.argv[1:])

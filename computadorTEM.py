@@ -1,4 +1,4 @@
-import random 
+import random
 
 num_comp = str(random.randint(100, 1000))
 print(num_comp)
@@ -14,7 +14,7 @@ while rodando:
     if len(palpite) != 3 or not palpite.isdigit():
         print("O palpite deve conter 3 números")
         continue
-         
+
     tiro = 0
     mosca = 0
 
@@ -32,7 +32,6 @@ while rodando:
             mosca += 1
             index = num_comp_copy.index(palpite_copy[i])
             num_comp_copy[index] = "x"
-            
 
     historico_palpites.append(f'{palpite} - {tiro}t{mosca}m')
     print(f'{palpite} - {tiro}t{mosca}m')
