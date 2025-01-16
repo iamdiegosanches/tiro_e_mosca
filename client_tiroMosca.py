@@ -22,6 +22,7 @@ font = pygame.font.SysFont('comicsans', 30)
 font_input = pygame.font.SysFont('comicsans', 60)
 font_history = pygame.font.SysFont('comicsans', 20)
 
+
 def draw_input_boxes(window, values, x_start, y_start, box_width, gap):
     """Desenha as caixas de entrada para números."""
     for i in range(3):
@@ -30,6 +31,7 @@ def draw_input_boxes(window, values, x_start, y_start, box_width, gap):
         if i < len(values):
             text_surface = font_input.render(str(values[i]), True, history_color)
             window.blit(text_surface, (rect.x + 15, rect.y + 10))
+
 
 def get_player_name():
     """Solicita o nome do jogador antes de iniciar o jogo, com cursor piscante."""
@@ -72,6 +74,7 @@ def get_player_name():
                     name += event.unicode
     return name.strip()
 
+
 def set_secret_number(n, player):
     """Define os números secretos do jogador e os envia ao servidor."""
     secret = []
@@ -107,6 +110,7 @@ def set_secret_number(n, player):
                 elif event.unicode.isdigit() and len(secret) < 3:
                     secret.append(int(event.unicode))
     return secret
+
 
 def draw_game(window, game, player, player_name, guess, feedback):
     """Desenha o estado do jogo na tela."""
@@ -155,7 +159,8 @@ def draw_game(window, game, player, player_name, guess, feedback):
         window.blit(feedback_render, (10, 500))
 
         # Exibir retângulos de entrada para o palpite
-        draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40, box_width=60, gap=10)
+        draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40,
+                         box_width=60, gap=10)
 
         # Exibir vencedor, se houver
         if game.winner is not None:
@@ -168,6 +173,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
     screen.blit(nome_render, (10, 40))
 
     pygame.display.update()
+
 
 def main():
     clock = pygame.time.Clock()
@@ -229,6 +235,7 @@ def main():
                     elif event.unicode.isdigit() and len(guess) < 3:
                         guess.append(int(event.unicode))
                         feedback = f"Palpite atual: {guess}"
+
 
 if __name__ == "__main__":
     main()

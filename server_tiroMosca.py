@@ -3,7 +3,7 @@ import threading
 import pickle
 from tiroMosca import TiroMosca
 
-server = "192.168.1.12"
+server = "ip"
 port = 8080
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
