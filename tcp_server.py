@@ -46,6 +46,8 @@ def verifica_palpite(palpite, num_comp):
 def on_new_client(clientsocket, addr):
     numero_computador = gera_numero_aleatorio()
     historico_palpites = []
+    numero_vitorias = 0
+    nome_jogador = ""
     while True:
         try:
             data = clientsocket.recv(BUFFER_SIZE)
@@ -53,7 +55,9 @@ def on_new_client(clientsocket, addr):
                 break
             texto_recebido = data.decode()
 
-            print(texto_recebido)
+            if texto_recebido.startswith("/usu"):
+                nome_jogador = texto_recebido.split(" ", 1)[1].strip()
+                continue
 
             if texto_recebido == 'novo_jogo':
                 numero_computador = gera_numero_aleatorio()
@@ -73,6 +77,7 @@ def on_new_client(clientsocket, addr):
                 clientsocket.send(f'{texto_recebido} - {tiro}t{mosca}m'.encode())
 
                 if tiro == 3:
+                    numero_vitorias += 1
                     print('ACERTOU')
 
             else:

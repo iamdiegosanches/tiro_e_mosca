@@ -36,6 +36,7 @@ font_button = pygame.font.Font(pygame.font.match_font('arial'), 40)
 history_scroll = 0
 historico = []
 input_values = ["", "", ""]
+nome_jogador = ""
 
 def draw_text_centered(text, font, color, surface, x, y):
     text_surface = font.render(text, True, color)
@@ -102,10 +103,56 @@ def draw_history(screen, history, scroll):
         screen.blit(text_surface, (x, y))
         y += 30
 
+def recebe_nome_jogador():
+    global nome_jogador
+    input_box = pygame.Rect(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 40, 300, 80)
+    typing = True
+
+    while typing:
+        screen.fill(BACKGROUND_COLOR)
+
+        # Instruções
+        draw_text_centered("Digite seu nome:", font_title, TEXT_COLOR, screen, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100)
+
+        # Caixa de entrada
+        pygame.draw.rect(screen, INPUT_COLOR, input_box, border_radius=10)
+        text_surface = font_input.render(nome_jogador, True, HISTORY_COLOR)
+        screen.blit(text_surface, (input_box.x + 10, input_box.y + 10))
+
+        # Botão Continuar
+        continue_rect = pygame.Rect(SCREEN_WIDTH // 2 - 75, SCREEN_HEIGHT // 2 + 60, 150, 50)
+        draw_button(screen, continue_rect.x, continue_rect.y, continue_rect.width, continue_rect.height, 
+                    "Start", BUTTON_COLOR, BUTTON_HOVER_COLOR)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    nome_jogador = nome_jogador[:-1]
+                elif event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
+                    if nome_jogador.strip():
+                        typing = False
+                else:
+                    if len(nome_jogador) < 20:  # Limite de caracteres para o nome
+                        nome_jogador += event.unicode
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if continue_rect.collidepoint(event.pos) and nome_jogador.strip():
+                    typing = False
+
+
 def main(argv):
     global history_scroll
     global historico
-    mode = main_menu()  
+
+    recebe_nome_jogador()
+    mode = main_menu()
+
     running = True
     acertou = False
     desistiu = False
@@ -114,6 +161,9 @@ def main(argv):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.1)  # Timeout para evitar bloqueios
             s.connect((HOST, PORT))
+
+            s.send("".join(f"/usu {nome_jogador}").encode())
+
             print("Aplicação cliente executando!")
             print(f"Modo escolhido: {mode}. Iniciando o jogo...")
             while running:
