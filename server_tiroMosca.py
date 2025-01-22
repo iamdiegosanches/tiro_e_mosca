@@ -75,14 +75,15 @@ while True:
     print("Conectado por", addr)
 
     idCount += 1
-    player = 0 if idCount % 2 == 1 else 1
+    player = 0
     gameId = (idCount - 1) // 2
 
-    if player == 0:
+    if idCount % 2 == 1:
         games[gameId] = TiroMosca(gameId)
         print(f"Novo jogo criado com ID {gameId}")
     else:
         games[gameId].ready = True
+        player = 1
         print(f"Jogador 1 conectado ao jogo {gameId}")
 
     thread = threading.Thread(target=threaded_client, args=(conn, player, gameId))
