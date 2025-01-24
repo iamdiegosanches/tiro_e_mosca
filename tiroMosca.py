@@ -1,5 +1,5 @@
 from collections import Counter
-
+import random
 
 class TiroMosca:
     def __init__(self, id):
@@ -13,6 +13,7 @@ class TiroMosca:
         self.tiro = 0
         self.history = [[], []]
         self.quit = [0, 0]
+        self.singlePlayer = False
 
     def set_number(self, player, number, index):
         print(self.secret)
@@ -23,6 +24,12 @@ class TiroMosca:
             print(self.secret)
             return True
         return False
+    
+    def set_random_number(self, player):
+        num_rand = str(random.randint(100, 1000))
+        self.singlePlayer = True
+        self.ready = True
+        self.set_numbers(player, [int(num_rand[0]), int(num_rand[1]), int(num_rand[2])])
 
     def set_numbers(self, player, numbers: list):
         if len(numbers) != 3 or not all(0 <= num <= 9 for num in numbers):
@@ -34,9 +41,9 @@ class TiroMosca:
         return True
 
     def play(self, player, guess: list):
-        if not self.ready:
+        if not self.ready and not self.singlePlayer:
             raise ValueError("Ambos os jogadores precisam definir seus números secretos antes de começar.")
-        if self.turn != player:
+        if self.turn != player and not self.singlePlayer:
             raise ValueError("Não é a sua vez de jogar.")
         if len(guess) != 3 or not all(0 <= num <= 9 for num in guess):
             raise ValueError("Os palpites devem conter exatamente 3 números entre 0 e 9.")
@@ -62,7 +69,8 @@ class TiroMosca:
         self.history[player].append((guess, self.tiro, self.mosca))
 
         # Troca de turnos
-        self.turn = 1 - self.turn
+        if not self.singlePlayer:
+            self.turn = 1 - self.turn
 
         # Verifica condição de vitória
         if self.mosca == 3:

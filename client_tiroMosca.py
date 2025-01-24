@@ -11,12 +11,19 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Tiro e Mosca")
 
 # Cores
-bg_color = (30, 30, 30)  # Alterada para um tom mais escuro e moderno
+bg_color = (30, 30, 30) 
 text_color = (255, 255, 255)
 highlight_color = (255, 0, 0)
 success_color = (0, 255, 0)
 input_color = (200, 200, 200)
 history_color = (0, 0, 0)
+button_color = (0, 128, 0)
+BUTTON_TEXT_COLOR = (255, 255, 255)
+BUTTON_HOVER_COLOR = (5, 48, 5)
+EXIT_BUTTON_COLOR = (255, 69, 0)
+EXIT_BUTTON_HOVER_COLOR = (79, 23, 2)
+menu_button_color = (82, 154, 179)
+menu_hover_color = (40, 76, 99)
 
 # Fonte
 font = pygame.font.SysFont('comicsans', 30)
@@ -112,16 +119,23 @@ def set_secret_number(n):
                     secret.append(int(event.unicode))
     return secret
 
+def set_computer_secret_number(n):
+    """Diz ao servidor para escolher um número"""
+    try:
+        n.send("set_random_number")
+        print("Solicitado número secreto")
+    except Exception as e:
+        print("Erro ao iniciar o número secreto")
 
 def draw_game(window, game, player, player_name, guess, feedback):
     """Desenha o estado do jogo na tela."""
     window.fill(bg_color)
 
     if isinstance(game, TiroMosca):
-        if not game.ready:
+        if not game.ready and not game.singlePlayer:
             text = font.render("Aguardando outro jogador...", True, highlight_color)
             screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
-        elif not game.post_secret:
+        elif not game.post_secret and not game.singlePlayer:
             text = font.render("Aguardando ambos os códigos secretos...", True, highlight_color)
             screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
         else:
@@ -177,7 +191,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
     pygame.display.update()
 
 
-def main():
+def main(tipo_jogo):
     clock = pygame.time.Clock()
     running = True
     n = Network()
@@ -193,9 +207,12 @@ def main():
         print(f"Erro ao conectar ao servidor: {e}")
         running = False
 
-    # Definir número secreto
-    secret = set_secret_number(n)
-    print(secret)
+    if tipo_jogo == 'computador':
+        set_computer_secret_number(n)
+    elif tipo_jogo == 'multiplayer':
+        # Definir número secreto
+        secret = set_secret_number(n)
+        print(secret)
 
     feedback = ""
     guess = []
@@ -227,7 +244,10 @@ def main():
                             n.send("reset")
                             guess = []
                             feedback = ""
-                            secret = set_secret_number(n)
+                            if tipo_jogo == 'multiplayer':
+                                secret = set_secret_number(n)
+                            elif tipo_jogo == 'computador':
+                                set_computer_secret_number(n)
                 continue
 
             for event in pygame.event.get():
@@ -235,7 +255,8 @@ def main():
                     running = False
                     pygame.quit()
 
-                if game.ready and game.post_secret and game.turn == player and game.winner is None:
+                if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
+                    print("entrou")
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and len(guess) == 3:
                             try:
@@ -250,17 +271,33 @@ def main():
                             guess.append(int(event.unicode))
                             feedback = f"Palpite atual: {guess}"
 
+def draw_text_centered(text, font, color, surface, x, y):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(x, y))
+    surface.blit(text_surface, text_rect)
 
 def menu_screen():
     run = True
     clock = pygame.time.Clock()
 
     while run:
+        tipo_jogo = ""
         clock.tick(60)
         screen.fill("purple")
         fonte = pygame.font.SysFont('comicsans', 60)
-        text = fonte.render("Click to play", True, (255, 255, 255))
-        screen.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2))
+        text = fonte.render("Escolha o modo de jogo", True, (255, 255, 255))
+        screen.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2 - 100))
+
+        # Botão 1: Modo Multiplayer
+        multiplayer_rect = pygame.Rect(100, 250, 250, 100)
+        pygame.draw.rect(screen, menu_hover_color if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, multiplayer_rect, border_radius=10)
+        draw_text_centered("Multiplayer", font_input, text_color, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
+
+        # Botão 2: Contra Computador
+        computer_rect = pygame.Rect(450, 250, 250, 100)
+        pygame.draw.rect(screen, menu_hover_color if computer_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, computer_rect, border_radius=10)
+        draw_text_centered("Computador", font_input, text_color, screen, computer_rect.centerx, computer_rect.centery)
+
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -269,8 +306,15 @@ def menu_screen():
                 pygame.quit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                run = False
-    main()
+                mouse_pos = pygame.mouse.get_pos()
+                if multiplayer_rect.collidepoint(mouse_pos):
+                    tipo_jogo = "multiplayer"
+                    run = False
+                if computer_rect.collidepoint(mouse_pos):
+                    tipo_jogo = "computador"
+                    run = False
+
+    main(tipo_jogo)
 
 
 if __name__ == "__main__":

@@ -47,6 +47,9 @@ def threaded_client(conn, player, gameId):
                             print(f"Jogador {player} definiu o código secreto: {numbers}")
                         else:
                             print(f"Jogador {player} tentou redefinir o código secreto.")
+                    elif data == "set_random_number":
+                        print("Servidor gerando números")
+                        game.set_random_number(1-player)
                     elif data.startswith("play"):
                         _, guess = data.split(":")
                         guess = list(map(int, guess.split(",")))
