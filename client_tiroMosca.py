@@ -148,6 +148,14 @@ def draw_game(window, game, player, player_name, guess, feedback):
             turno_render = font.render(turno_texto, True, turno_cor)
             window.blit(turno_render, (10, 10))
 
+            if game.singlePlayer:
+                desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
+                pygame.draw.rect(screen, menu_hover_color if desistiu_rect.collidepoint(
+                    pygame.mouse.get_pos()) else menu_button_color, desistiu_rect, border_radius=10)
+                draw_text_centered("Desistir", font, text_color, screen, desistiu_rect.centerx,
+                                   desistiu_rect.centery)
+
+
             # Exibir histórico de palpites do jogador atual
             history_y_player = 100
             player_history_title = font.render("Seus palpites:", True, text_color)
@@ -258,6 +266,23 @@ def main(tipo_jogo):
                 if event.type == pygame.QUIT:
                     running = False
                     pygame.quit()
+
+                if game.ready and game.singlePlayer and game.winner is None:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
+                        if desistiu_rect.collidepoint(mouse_pos):
+                            text = font.render("Você desistiu", True, text_color)
+                            screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+                            pygame.display.update()
+                            pygame.time.delay(2000)
+                            try:
+                                n.send("reset")
+                                guess = []
+                                feedback = ""
+                                set_computer_secret_number(n)
+                            except Exception as e:
+                                print(f"Erro ao reiniciar o jogo após desistir: {e}")
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:
