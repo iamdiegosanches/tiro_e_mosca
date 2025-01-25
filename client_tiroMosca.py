@@ -40,7 +40,6 @@ def draw_input_boxes(window, values, x_start, y_start, box_width, gap):
             text_surface = font_input.render(str(values[i]), True, history_color)
             window.blit(text_surface, (rect.x + 15, rect.y + 10))
 
-
 def get_player_name():
     """Solicita o nome do jogador antes de iniciar o jogo, com cursor piscante."""
     name = ""
@@ -81,7 +80,6 @@ def get_player_name():
                 else:
                     name += event.unicode
     return name.strip()
-
 
 def set_secret_number(n):
     """Define os números secretos do jogador e os envia ao servidor."""
@@ -170,13 +168,27 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 window.blit(history_render, (400, history_y_opponent))
                 history_y_opponent += 30
 
-            # Exibir feedback atual
-            feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
-            window.blit(feedback_render, (10, 500))
-
             # Exibir retângulos de entrada para o palpite
             draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40,
                              box_width=60, gap=10)
+            
+            # Exibir histórico de vitórias e rodadas necessárias
+            history_wins = 400
+            history_wins_title = font.render("Histórico de vitórias:", True, text_color)
+            window.blit(history_wins_title, (10, history_wins))
+
+            coords = [10, 400]
+
+            for p in range(2 if not game.singlePlayer else 1):
+                player_wins = f"Jogador {p + 1}: {game.wins[p]} vitórias"
+                win_render = font_history.render(player_wins, True, text_color)
+                window.blit(win_render, (coords[p], history_wins + 30))
+
+                if game.rounds_per_win[p]:
+                    for i, rounds in enumerate(game.rounds_per_win[p], start=1):
+                        rounds_text = f"Vitória {i}: {rounds} rodadas"
+                        rounds_render = font_history.render(rounds_text, True, text_color)
+                        window.blit(rounds_render, (coords[p], history_wins + 30 + i * 15))
 
             # Exibir vencedor, se houver
             if game.winner is not None:
@@ -256,7 +268,6 @@ def main(tipo_jogo):
                     pygame.quit()
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
-                    print("entrou")
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and len(guess) == 3:
                             try:
