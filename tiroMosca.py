@@ -14,6 +14,9 @@ class TiroMosca:
         self.history = [[], []]
         self.quit = [0, 0]
         self.singlePlayer = False
+        self.rounds = [0, 0]
+        self.wins = [0, 0]
+        self.rounds_per_win = [[], []]
 
     def set_number(self, player, number, index):
         print(self.secret)
@@ -52,6 +55,9 @@ class TiroMosca:
         self.tiro = 0
         opponent = 1 - player
 
+        # Contando os rounds
+        self.rounds[player] += 1
+
         # Contagem de "Moscas"
         for i in range(3):
             if self.secret[opponent][i] == guess[i]:
@@ -75,6 +81,8 @@ class TiroMosca:
         # Verifica condição de vitória
         if self.mosca == 3:
             self.winner = player
+            self.wins[player] += 1
+            self.rounds_per_win[player].append(self.rounds[player])
 
     def connected(self):
         return self.ready
@@ -86,3 +94,4 @@ class TiroMosca:
         self.mosca = 0
         self.tiro = 0
         self.history = [[], []]
+        self.rounds = [0, 0]

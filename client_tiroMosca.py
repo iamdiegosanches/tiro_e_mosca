@@ -86,7 +86,6 @@ def get_player_name():
                     name += event.unicode
     return name.strip()
 
-
 def set_secret_number(n):
     """Define os números secretos do jogador e os envia ao servidor."""
     secret = []
@@ -149,14 +148,6 @@ def draw_game(window, game, player, player_name, guess, feedback):
             turno_render = font.render(turno_texto, True, turno_cor)
             window.blit(turno_render, (10, 10))
 
-            if game.singlePlayer:
-                desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
-                pygame.draw.rect(screen, menu_hover_color if desistiu_rect.collidepoint(
-                    pygame.mouse.get_pos()) else menu_button_color, desistiu_rect, border_radius=10)
-                draw_text_centered("Desistir", font, text_color, screen, desistiu_rect.centerx,
-                                   desistiu_rect.centery)
-
-
             # Exibir histórico de palpites do jogador atual
             history_y_player = 100
             player_history_title = font.render("Seus palpites:", True, text_color)
@@ -170,18 +161,17 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 history_y_player += 30
 
             # Exibir histórico de palpites do adversário
-            if not game.singlePlayer:
-                history_y_opponent = 100
-                opponent = 1 - player
-                opponent_history_title = font.render("Palpites do adversário:", True, text_color)
-                window.blit(opponent_history_title, (400, 70))
+            history_y_opponent = 100
+            opponent = 1 - player
+            opponent_history_title = font.render("Palpites do adversário:", True, text_color)
+            window.blit(opponent_history_title, (400, 70))
 
-                for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
-                    palpite, tiros, moscas = entry
-                    history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
-                    history_render = font_history.render(history_text, True, text_color)
-                    window.blit(history_render, (400, history_y_opponent))
-                    history_y_opponent += 30
+            for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
+                palpite, tiros, moscas = entry
+                history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
+                history_render = font_history.render(history_text, True, text_color)
+                window.blit(history_render, (400, history_y_opponent))
+                history_y_opponent += 30
 
             # Exibir feedback atual
             feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
@@ -268,24 +258,8 @@ def main(tipo_jogo):
                     running = False
                     pygame.quit()
 
-                if game.ready and game.singlePlayer and game.winner is None:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_pos = pygame.mouse.get_pos()
-                        desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
-                        if desistiu_rect.collidepoint(mouse_pos):
-                            text = font.render("Você desistiu", True, text_color)
-                            screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
-                            pygame.display.update()
-                            pygame.time.delay(2000)
-                            try:
-                                n.send("reset")
-                                guess = []
-                                feedback = ""
-                                set_computer_secret_number(n)
-                            except Exception as e:
-                                print(f"Erro ao reiniciar o jogo após desistir: {e}")
-
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
+                    print("entrou")
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and len(guess) == 3:
                             try:
