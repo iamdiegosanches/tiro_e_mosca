@@ -260,7 +260,6 @@ def main(tipo_jogo):
                     pygame.quit()
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
-                    print("entrou")
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN and len(guess) == 3:
                             try:
