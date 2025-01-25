@@ -177,6 +177,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
             history_wins_title = font.render("Histórico de vitórias:", True, text_color)
             window.blit(history_wins_title, (10, history_wins))
 
+            max_display = 5
             coords = [10, 400]
 
             for p in range(2 if not game.singlePlayer else 1):
@@ -184,11 +185,14 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 win_render = font_history.render(player_wins, True, text_color)
                 window.blit(win_render, (coords[p], history_wins + 30))
 
+                # Mostrar apenas as últimas vitórias
                 if game.rounds_per_win[p]:
-                    for i, rounds in enumerate(game.rounds_per_win[p], start=1):
+                    last_wins = game.rounds_per_win[p][-max_display:]
+                    for i, rounds in enumerate(last_wins, start=1):
                         rounds_text = f"Vitória {i}: {rounds} rodadas"
                         rounds_render = font_history.render(rounds_text, True, text_color)
                         window.blit(rounds_render, (coords[p], history_wins + 30 + i * 15))
+
 
             # Exibir vencedor, se houver
             if game.winner is not None:
