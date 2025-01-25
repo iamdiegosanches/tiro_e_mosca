@@ -182,13 +182,30 @@ def draw_game(window, game, player, player_name, guess, feedback):
                     window.blit(history_render, (400, history_y_opponent))
                     history_y_opponent += 30
 
-            # Exibir feedback atual
-            feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
-            window.blit(feedback_render, (10, 500))
-
             # Exibir retângulos de entrada para o palpite
             draw_input_boxes(window, [str(num) for num in guess], x_start=width // 2 - 100, y_start=height // 2 - 40,
                              box_width=60, gap=10)
+
+            # Exibir histórico de vitórias e rodadas necessárias
+            history_wins = 400
+            history_wins_title = font.render("Histórico de vitórias:", True, text_color)
+            window.blit(history_wins_title, (10, history_wins))
+
+            max_display = 5
+            coords = [10, 400]
+
+            for p in range(2 if not game.singlePlayer else 1):
+                player_wins = f"Jogador {p + 1}: {game.wins[p]} vitórias"
+                win_render = font_history.render(player_wins, True, text_color)
+                window.blit(win_render, (coords[p], history_wins + 30))
+
+                # Mostrar apenas as últimas vitórias
+                if game.rounds_per_win[p]:
+                    last_wins = game.rounds_per_win[p][-max_display:]
+                    for i, rounds in enumerate(last_wins, start=1):
+                        rounds_text = f"Vitória {i}: {rounds} rodadas"
+                        rounds_render = font_history.render(rounds_text, True, text_color)
+                        window.blit(rounds_render, (coords[p], history_wins + 30 + i * 15))
 
             # Exibir vencedor, se houver
             if game.winner is not None:
