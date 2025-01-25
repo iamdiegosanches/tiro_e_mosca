@@ -160,18 +160,19 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 window.blit(history_render, (10, history_y_player))
                 history_y_player += 30
 
-            # Exibir histórico de palpites do adversário
-            history_y_opponent = 100
-            opponent = 1 - player
-            opponent_history_title = font.render("Palpites do adversário:", True, text_color)
-            window.blit(opponent_history_title, (400, 70))
+            if not game.singlePlayer:
+                # Exibir histórico de palpites do adversário
+                history_y_opponent = 100
+                opponent = 1 - player
+                opponent_history_title = font.render("Palpites do adversário:", True, text_color)
+                window.blit(opponent_history_title, (400, 70))
 
-            for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
-                palpite, tiros, moscas = entry
-                history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
-                history_render = font_history.render(history_text, True, text_color)
-                window.blit(history_render, (400, history_y_opponent))
-                history_y_opponent += 30
+                for entry in game.history[opponent][-5:]:  # Últimos 5 palpites do adversário
+                    palpite, tiros, moscas = entry
+                    history_text = f"Palpite: {palpite} | Tiros: {tiros} | Moscas: {moscas}"
+                    history_render = font_history.render(history_text, True, text_color)
+                    window.blit(history_render, (400, history_y_opponent))
+                    history_y_opponent += 30
 
             # Exibir feedback atual
             feedback_render = font.render(feedback, True, highlight_color if "Inválido" in feedback else success_color)
