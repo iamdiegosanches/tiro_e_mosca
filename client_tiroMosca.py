@@ -284,7 +284,7 @@ def main(tipo_jogo):
                                 set_computer_secret_number(n)
                 continue
             
-            if game.winner is not None and game.quit:
+            if game.winner is not None and game.quit and not game.singlePlayer:
                 text = font.render("O outro jogador saiu da partida!", True, highlight_color)
                 screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
                 pygame.display.update()
@@ -325,7 +325,10 @@ def main(tipo_jogo):
                                 screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
                                 pygame.display.update()
                                 pygame.time.delay(4000)
-                                menu_screen()
+                                if game.singlePlayer:
+                                    running = False
+                                else:
+                                    menu_screen()
                             except Exception as e:
                                 print(f"Erro ao processar desistência: {e}")
 
