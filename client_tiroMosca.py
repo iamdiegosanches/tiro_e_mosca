@@ -298,7 +298,10 @@ def main(tipo_jogo):
             draw_game(screen, game, player, player_name, guess, feedback)
 
         if isinstance(game, TiroMosca):
-            if (game.reset_players[player] or game.reset_players[1 - player]) and game.winner is not None:
+            if game.secret == [["" for _ in range(3)] for _ in range(2)] and not game.singlePlayer:
+                secret = set_secret_number(n)
+
+            if (game.reset_players[player] or game.reset_players[1 - player]) and game.winner is not None and not game.singlePlayer:
                 draw_reset(screen, game, player)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -316,7 +319,8 @@ def main(tipo_jogo):
                         if nao_rect.collidepoint(mouse_pos):
                             running = False
                             break
-            if game.winner is not None and not game.quit:
+
+            if game.winner is not None and not game.quit and not game.singlePlayer:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         running = False
@@ -380,16 +384,30 @@ def main(tipo_jogo):
                             try:
                                 print("Cliquei no botão para sair")
                                 n.send("quit")
-                                text = font.render("Você saiu da partida!", True, highlight_color)
-                                screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
-                                pygame.display.update()
-                                pygame.time.delay(2000)
+                                if not game.singlePlayer:
+                                    text = font.render("Você saiu da partida!", True, highlight_color)
+                                    screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+                                    pygame.display.update()
+                                    pygame.time.delay(2000)
                                 if game.singlePlayer:
                                     running = False
                                 else:
                                     menu_screen()
                             except Exception as e:
                                 print(f"Erro ao processar desistência: {e}")
+                
+                if game.ready and game.winner is not None:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        if reset_rect.collidepoint(mouse_pos):
+                            try:
+                                n.send("reset")
+                                guess = []
+                                feedback = ""
+                                set_computer_secret_number(n)
+                            except Exception as e:
+                                print(f"Erro ao reiniciar o jogo: {e}")
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:
