@@ -50,10 +50,16 @@ def threaded_client(conn, player, gameId):
                     elif data == "set_random_number":
                         print("Servidor gerando números")
                         game.set_random_number(1-player)
+                        
                     elif data.startswith("play"):
                         _, guess = data.split(":")
                         guess = list(map(int, guess.split(",")))
                         game.play(player, guess)
+                    elif data == "quit":
+                        print("Algum jogador saiu da partida")
+                        print("Excluindo jogo...")
+                        game.quit_game(player)
+                        idCount -= 1
 
                     conn.sendall(pickle.dumps(game))
             else:
