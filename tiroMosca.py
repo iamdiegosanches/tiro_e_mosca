@@ -17,6 +17,7 @@ class TiroMosca:
         self.rounds = [0, 0]
         self.wins = [0, 0]
         self.rounds_per_win = [[], []]
+        self.reset_players = [False, False]
 
     def set_number(self, player, number, index):
         print(self.secret)
@@ -95,6 +96,12 @@ class TiroMosca:
         self.tiro = 0
         self.history = [[], []]
         self.rounds = [0, 0]
+
+    def reset_player(self, player):
+        self.reset_players[player] = True
+        if all(self.reset_players):
+            self.reset()
+            self.reset_players = [False, False]
 
     def quit_game(self, player):
         self.quit = True
