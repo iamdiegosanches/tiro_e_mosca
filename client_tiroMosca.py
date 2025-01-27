@@ -155,6 +155,13 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 draw_text_centered("Desistir", font, text_color, screen, desistiu_rect.centerx,
                                    desistiu_rect.centery)
             
+            if game.winner is not None:
+                reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                pygame.draw.rect(screen, menu_hover_color if reset_rect.collidepoint(
+                    pygame.mouse.get_pos()) else menu_button_color, reset_rect, border_radius=10)
+                draw_text_centered("Reset", font, text_color, screen, reset_rect.centerx,
+                                    reset_rect.centery)
+
             sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
             pygame.draw.rect(screen, menu_hover_color if sair_rect.collidepoint(
                 pygame.mouse.get_pos()) else menu_button_color, sair_rect, border_radius=10)
@@ -224,6 +231,30 @@ def draw_game(window, game, player, player_name, guess, feedback):
 
     pygame.display.update()
 
+def draw_reset(window, game, player):
+    window.fill(bg_color)
+
+    if game.reset_players[player]:
+        text = font.render("Aguardando confirmação do outro jogador...", True, highlight_color)
+        screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
+    else:
+        sim_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+        pygame.draw.rect(screen, menu_hover_color if sim_rect.collidepoint(
+            pygame.mouse.get_pos()) else menu_button_color, sim_rect, border_radius=10)
+        draw_text_centered("Sim", font, text_color, screen, sim_rect.centerx,
+                            sim_rect.centery)
+        nao_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+        pygame.draw.rect(screen, menu_hover_color if nao_rect.collidepoint(
+            pygame.mouse.get_pos()) else menu_button_color, nao_rect, border_radius=10)
+        draw_text_centered("Não", font, text_color, screen, nao_rect.centerx,
+                            nao_rect.centery)
+        text = font.render("Você deseja jogar novamente?", True, highlight_color)
+        screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+
+
+    pygame.display.update()
+    
+
 
 def main(tipo_jogo):
     clock = pygame.time.Clock()
@@ -263,32 +294,60 @@ def main(tipo_jogo):
             print(f"Erro ao receber jogo: {e}")
             break
 
-        draw_game(screen, game, player, player_name, guess, feedback)
+        if not (game.reset_players[player] or game.reset_players[1 - player]):
+            draw_game(screen, game, player, player_name, guess, feedback)
 
         if isinstance(game, TiroMosca):
-            if game.winner is not None and not game.quit:
-                waiting = True
-                while waiting:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
+            if (game.reset_players[player] or game.reset_players[1 - player]) and game.winner is not None:
+                draw_reset(screen, game, player)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                        pygame.quit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        sim_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        if sim_rect.collidepoint(mouse_pos):
+                            try:
+                                n.send("resetplayer")
+                            except Exception as e:
+                                print(f"Erro ao reiniciar o jogo: {e}")
+                        nao_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        if nao_rect.collidepoint(mouse_pos):
                             running = False
-                            pygame.quit()
-                        if event.type == pygame.MOUSEBUTTONDOWN:
-                            waiting = False
-                            n.send("reset")
-                            guess = []
-                            feedback = ""
-                            if tipo_jogo == 'multiplayer':
-                                secret = set_secret_number(n)
-                            elif tipo_jogo == 'computador':
-                                set_computer_secret_number(n)
+                            break
+            if game.winner is not None and not game.quit:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                        pygame.quit()
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        if reset_rect.collidepoint(mouse_pos):
+                            try:
+                                n.send("resetplayer")
+                            except Exception as e:
+                                print(f"Erro ao reiniciar o jogo: {e}")
+                        if sair_rect.collidepoint(mouse_pos):
+                            print("Cliquei no botão para sair")
+                            n.send("quit")
+                            text = font.render("Você saiu da partida!", True, highlight_color)
+                            screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+                            pygame.display.update()
+                            pygame.time.delay(2000)
+                            if game.singlePlayer:
+                                running = False
+                            else:
+                                menu_screen()
                 continue
             
             if game.winner is not None and game.quit and not game.singlePlayer:
                 text = font.render("O outro jogador saiu da partida!", True, highlight_color)
                 screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
                 pygame.display.update()
-                pygame.time.delay(4000)
+                pygame.time.delay(2000)
                 break
 
             for event in pygame.event.get():
@@ -324,7 +383,7 @@ def main(tipo_jogo):
                                 text = font.render("Você saiu da partida!", True, highlight_color)
                                 screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
                                 pygame.display.update()
-                                pygame.time.delay(4000)
+                                pygame.time.delay(2000)
                                 if game.singlePlayer:
                                     running = False
                                 else:
