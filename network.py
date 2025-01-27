@@ -17,14 +17,14 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
-            return self.client.recv(4*4096).decode()  # recebe p do servidor
+            return self.client.recv(4096).decode()  # recebe p do servidor
         except socket.error as msg:
             print(msg)
 
     def send(self, data):
         try:
             self.client.send(data.encode())
-            data = self.client.recv(4*4096)
+            data = self.client.recv(4096)
             if not data:
                 print("Nenhum dado recebido do servidor.")
                 return None

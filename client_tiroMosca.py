@@ -149,12 +149,17 @@ def draw_game(window, game, player, player_name, guess, feedback):
             window.blit(turno_render, (10, 10))
 
             if game.singlePlayer:
-                desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
+                desistiu_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
                 pygame.draw.rect(screen, menu_hover_color if desistiu_rect.collidepoint(
                     pygame.mouse.get_pos()) else menu_button_color, desistiu_rect, border_radius=10)
                 draw_text_centered("Desistir", font, text_color, screen, desistiu_rect.centerx,
                                    desistiu_rect.centery)
-
+            
+            sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
+            pygame.draw.rect(screen, menu_hover_color if sair_rect.collidepoint(
+                pygame.mouse.get_pos()) else menu_button_color, sair_rect, border_radius=10)
+            draw_text_centered("Sair", font, text_color, screen, sair_rect.centerx,
+                                sair_rect.centery)
 
             # Exibir histórico de palpites do jogador atual
             history_y_player = 100
@@ -208,7 +213,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
                         window.blit(rounds_render, (coords[p], history_wins + 30 + i * 15))
 
             # Exibir vencedor, se houver
-            if game.winner is not None:
+            if game.winner is not None and not game.quit:
                 resultado = "Você venceu!" if game.winner == player else "Você perdeu!"
                 resultado_render = font.render(resultado, True, success_color)
                 screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2))
@@ -261,7 +266,7 @@ def main(tipo_jogo):
         draw_game(screen, game, player, player_name, guess, feedback)
 
         if isinstance(game, TiroMosca):
-            if game.winner is not None:
+            if game.winner is not None and not game.quit:
                 waiting = True
                 while waiting:
                     for event in pygame.event.get():
@@ -278,6 +283,13 @@ def main(tipo_jogo):
                             elif tipo_jogo == 'computador':
                                 set_computer_secret_number(n)
                 continue
+            
+            if game.winner is not None and game.quit:
+                text = font.render("O outro jogador saiu da partida!", True, highlight_color)
+                screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+                pygame.display.update()
+                pygame.time.delay(4000)
+                break
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -287,7 +299,7 @@ def main(tipo_jogo):
                 if game.ready and game.singlePlayer and game.winner is None:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        desistiu_rect = pygame.Rect(width // 2 + 150, height // 2 + 150, 125, 50)
+                        desistiu_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
                         if desistiu_rect.collidepoint(mouse_pos):
                             text = font.render("Você desistiu", True, text_color)
                             screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
@@ -300,6 +312,22 @@ def main(tipo_jogo):
                                 set_computer_secret_number(n)
                             except Exception as e:
                                 print(f"Erro ao reiniciar o jogo após desistir: {e}")
+                
+                if game.ready and game.winner is None:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        if sair_rect.collidepoint(mouse_pos):
+                            try:
+                                print("Cliquei no botão para sair")
+                                n.send("quit")
+                                text = font.render("Você saiu da partida!", True, highlight_color)
+                                screen.blit(text, (width // 2 - text.get_width() // 2, height // 3))
+                                pygame.display.update()
+                                pygame.time.delay(4000)
+                                menu_screen()
+                            except Exception as e:
+                                print(f"Erro ao processar desistência: {e}")
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:

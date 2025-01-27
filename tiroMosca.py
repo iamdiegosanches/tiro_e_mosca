@@ -12,7 +12,7 @@ class TiroMosca:
         self.mosca = 0
         self.tiro = 0
         self.history = [[], []]
-        self.quit = [0, 0]
+        self.quit = False
         self.singlePlayer = False
         self.rounds = [0, 0]
         self.wins = [0, 0]
@@ -95,3 +95,8 @@ class TiroMosca:
         self.tiro = 0
         self.history = [[], []]
         self.rounds = [0, 0]
+
+    def quit_game(self, player):
+        self.quit = True
+        self.winner = 1 - player
+        print("Saindo do jogo pela classe")
