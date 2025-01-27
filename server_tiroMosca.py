@@ -59,7 +59,8 @@ def threaded_client(conn, player, gameId):
                         print("Algum jogador saiu da partida")
                         print("Excluindo jogo...")
                         game.quit_game(player)
-                        idCount -= 1
+                        if not game.singlePlayer:
+                            idCount -= 1
 
                     conn.sendall(pickle.dumps(game))
             else:
@@ -91,6 +92,7 @@ while True:
         games[gameId] = TiroMosca(gameId)
         print(f"Novo jogo criado com ID {gameId}")
     else:
+        print("GameId", gameId)
         games[gameId].ready = True
         player = 1
         print(f"Jogador 1 conectado ao jogo {gameId}")
