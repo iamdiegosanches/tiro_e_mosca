@@ -89,11 +89,13 @@ while True:
     idCount += 1
     player = 0
     gameId = (idCount - 1) // 2
+    gameId = 0 if gameId < 0 else gameId
 
     if idCount % 2 == 1:
         games[gameId] = TiroMosca(gameId)
         print(f"Novo jogo criado com ID {gameId}")
     else:
+        gameId = 0 if gameId < 0 else gameId
         print("GameId", gameId)
         games[gameId].ready = True
         player = 1
