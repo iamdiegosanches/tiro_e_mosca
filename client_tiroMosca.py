@@ -391,11 +391,12 @@ def main(tipo_jogo):
                                     menu_screen()
                             except Exception as e:
                                 print(f"Erro ao processar desistência: {e}")
-                
-                if game.ready and game.winner is not None:
+
+                if game.ready and game.winner is not None and game.singlePlayer:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
+                        reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
                         if reset_rect.collidepoint(mouse_pos):
                             try:
                                 n.send("reset")
@@ -404,6 +405,13 @@ def main(tipo_jogo):
                                 set_computer_secret_number(n)
                             except Exception as e:
                                 print(f"Erro ao reiniciar o jogo: {e}")
+                        if sair_rect.collidepoint(mouse_pos):
+                            print("Cliquei no botão para sair")
+                            n.send("quit")
+                            if game.singlePlayer:
+                                running = False
+                            else:
+                                menu_screen()
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:
@@ -419,6 +427,7 @@ def main(tipo_jogo):
                         elif event.unicode.isdigit() and len(guess) < 3:
                             guess.append(int(event.unicode))
                             feedback = f"Palpite atual: {guess}"
+                
 
 
 def menu_screen():
