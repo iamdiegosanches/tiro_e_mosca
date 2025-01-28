@@ -17,16 +17,12 @@ highlight_color = (255, 0, 0)
 success_color = (0, 255, 0)
 input_color = (200, 200, 200)
 history_color = (0, 0, 0)
-button_color = (0, 128, 0)
-BUTTON_TEXT_COLOR = (255, 255, 255)
-BUTTON_HOVER_COLOR = (5, 48, 5)
-EXIT_BUTTON_COLOR = (255, 69, 0)
-EXIT_BUTTON_HOVER_COLOR = (79, 23, 2)
-menu_button_color = (82, 154, 179)
-menu_hover_color = (40, 76, 99)
+menu_button_color = (79, 170, 105)
+menu_hover_color = (88, 181, 83)
 
 # Fonte
 font = pygame.font.SysFont('comicsans', 30)
+font_med_button = pygame.font.SysFont('comicsans', 40)
 font_input = pygame.font.SysFont('comicsans', 60)
 font_history = pygame.font.SysFont('comicsans', 20)
 
@@ -148,7 +144,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
             turno_render = font.render(turno_texto, True, turno_cor)
             window.blit(turno_render, (10, 10))
 
-            if game.singlePlayer:
+            if game.singlePlayer and game.winner is None:
                 desistiu_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
                 pygame.draw.rect(screen, menu_hover_color if desistiu_rect.collidepoint(
                     pygame.mouse.get_pos()) else menu_button_color, desistiu_rect, border_radius=10)
@@ -156,7 +152,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
                                    desistiu_rect.centery)
             
             if game.winner is not None:
-                reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
                 pygame.draw.rect(screen, menu_hover_color if reset_rect.collidepoint(
                     pygame.mouse.get_pos()) else menu_button_color, reset_rect, border_radius=10)
                 draw_text_centered("Reset", font, text_color, screen, reset_rect.centerx,
@@ -223,7 +219,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
             if game.winner is not None and not game.quit:
                 resultado = "Você venceu!" if game.winner == player else "Você perdeu!"
                 resultado_render = font.render(resultado, True, success_color)
-                screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2))
+                screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2 - 80))
 
     # Exibir o nome do jogador
     nome_render = font.render(f"Jogador: {player_name}", True, text_color)
@@ -238,7 +234,7 @@ def draw_reset(window, game, player):
         text = font.render("Aguardando confirmação do outro jogador...", True, highlight_color)
         screen.blit(text, (width // 2 - text.get_width() // 2, height // 2))
     else:
-        sim_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+        sim_rect = pygame.Rect(width // 2 + 50, height // 2 + 150, 125, 50)
         pygame.draw.rect(screen, menu_hover_color if sim_rect.collidepoint(
             pygame.mouse.get_pos()) else menu_button_color, sim_rect, border_radius=10)
         draw_text_centered("Sim", font, text_color, screen, sim_rect.centerx,
@@ -309,7 +305,7 @@ def main(tipo_jogo):
                         pygame.quit()
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        sim_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        sim_rect = pygame.Rect(width // 2 + 50, height // 2 + 150, 125, 50)
                         if sim_rect.collidepoint(mouse_pos):
                             try:
                                 n.send("resetplayer")
@@ -327,7 +323,7 @@ def main(tipo_jogo):
                         pygame.quit()
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
+                        reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
                         sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
                         if reset_rect.collidepoint(mouse_pos):
                             try:
@@ -441,7 +437,7 @@ def menu_screen():
     while run:
         tipo_jogo = ""
         clock.tick(60)
-        screen.fill("purple")
+        screen.fill(bg_color)
         fonte = pygame.font.SysFont('comicsans', 60)
         text = fonte.render("Escolha o modo de jogo", True, (255, 255, 255))
         screen.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2 - 100))
@@ -449,12 +445,12 @@ def menu_screen():
         # Botão 1: Modo Multiplayer
         multiplayer_rect = pygame.Rect(100, 250, 250, 100)
         pygame.draw.rect(screen, menu_hover_color if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, multiplayer_rect, border_radius=10)
-        draw_text_centered("Multiplayer", font_input, text_color, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
+        draw_text_centered("Multiplayer", font_med_button, text_color, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
 
         # Botão 2: Contra Computador
         computer_rect = pygame.Rect(450, 250, 250, 100)
         pygame.draw.rect(screen, menu_hover_color if computer_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, computer_rect, border_radius=10)
-        draw_text_centered("Computador", font_input, text_color, screen, computer_rect.centerx, computer_rect.centery)
+        draw_text_centered("Computador", font_med_button, text_color, screen, computer_rect.centerx, computer_rect.centery)
 
         pygame.display.update()
 
