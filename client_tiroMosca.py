@@ -21,10 +21,10 @@ menu_button_color = (79, 170, 105)
 menu_hover_color = (88, 181, 83)
 
 # Fonte
-font = pygame.font.SysFont('comicsans', 30)
-font_med_button = pygame.font.SysFont('comicsans', 40)
-font_input = pygame.font.SysFont('comicsans', 60)
-font_history = pygame.font.SysFont('comicsans', 20)
+font = pygame.font.SysFont('roboto', 30)
+font_med_button = pygame.font.SysFont('roboto', 50)
+font_input = pygame.font.SysFont('roboto', 60)
+font_history = pygame.font.SysFont('roboto', 20)
 
 
 def draw_input_boxes(window, values, x_start, y_start, box_width, gap):
@@ -438,7 +438,7 @@ def menu_screen():
         tipo_jogo = ""
         clock.tick(60)
         screen.fill(bg_color)
-        fonte = pygame.font.SysFont('comicsans', 60)
+        fonte = pygame.font.SysFont('roboto', 60)
         text = fonte.render("Escolha o modo de jogo", True, (255, 255, 255))
         screen.blit(text, (width / 2 - text.get_width() / 2, height / 2 - text.get_height() / 2 - 100))
 
