@@ -324,7 +324,7 @@ def main(tipo_jogo):
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
                         reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
-                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
                         if reset_rect.collidepoint(mouse_pos):
                             try:
                                 n.send("resetplayer")
@@ -375,7 +375,7 @@ def main(tipo_jogo):
                 if game.ready and game.winner is None:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
                         if sair_rect.collidepoint(mouse_pos):
                             try:
                                 print("Cliquei no botão para sair")
@@ -395,8 +395,8 @@ def main(tipo_jogo):
                 if game.ready and game.winner is not None and game.singlePlayer:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
-                        reset_rect = pygame.Rect(width // 2 + 100, height // 2 + 150, 125, 50)
-                        sair_rect = pygame.Rect(width // 2 + 200, height // 2 + 150, 125, 50)
+                        reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
+                        sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
                         if reset_rect.collidepoint(mouse_pos):
                             try:
                                 n.send("reset")
