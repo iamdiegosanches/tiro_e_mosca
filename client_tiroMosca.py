@@ -218,7 +218,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
             # Exibir vencedor, se houver
             if game.winner is not None and not game.quit:
                 resultado = "Você venceu!" if game.winner == player else "Você perdeu!"
-                resultado_render = font.render(resultado, True, success_color)
+                resultado_render = font.render(resultado, True, success_color if game.winner == player else highlight_color)
                 screen.blit(resultado_render, (width // 2 - resultado_render.get_width() // 2, height // 2 - 80))
 
     # Exibir o nome do jogador
