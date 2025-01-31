@@ -155,7 +155,7 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 reset_rect = pygame.Rect(width // 2 + 250, height // 2 + 80, 125, 50)
                 pygame.draw.rect(screen, menu_hover_color if reset_rect.collidepoint(
                     pygame.mouse.get_pos()) else menu_button_color, reset_rect, border_radius=10)
-                draw_text_centered("Reset", font, text_color, screen, reset_rect.centerx,
+                draw_text_centered("Continuar", font, text_color, screen, reset_rect.centerx,
                                     reset_rect.centery)
 
             sair_rect = pygame.Rect(width // 2 + 250, height // 2 + 150, 125, 50)
@@ -445,7 +445,7 @@ def menu_screen():
         # Botão 1: Modo Multiplayer
         multiplayer_rect = pygame.Rect(100, 250, 250, 100)
         pygame.draw.rect(screen, menu_hover_color if multiplayer_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, multiplayer_rect, border_radius=10)
-        draw_text_centered("Multiplayer", font_med_button, text_color, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
+        draw_text_centered("2 Jogadores", font_med_button, text_color, screen, multiplayer_rect.centerx, multiplayer_rect.centery)
 
         # Botão 2: Contra Computador
         computer_rect = pygame.Rect(450, 250, 250, 100)
