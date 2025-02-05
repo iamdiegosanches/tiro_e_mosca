@@ -38,7 +38,8 @@ def threaded_client(conn, player, gameId):
                     if data == "reset":
                         game.reset()
                     elif data == "resetplayer":
-                        game.reset_player(player)
+                        turn = game.getTurn()
+                        game.reset_player(player, turn)
                     elif data == "get":
                         conn.sendall(pickle.dumps(game))
                     elif data.startswith("set_numbers"):
