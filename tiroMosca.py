@@ -84,12 +84,16 @@ class TiroMosca:
             self.winner = player
             self.wins[player] += 1
             self.rounds_per_win[player].append(self.rounds[player])
+            self.turn = player
+
+    def getTurn(self):
+        return self.turn
 
     def connected(self):
         return self.ready
 
-    def reset(self):
-        self.turn = 0
+    def reset(self, turn=0):
+        self.turn = turn
         self.winner = None
         self.secret = [["" for _ in range(3)] for _ in range(2)]
         self.mosca = 0
@@ -97,10 +101,10 @@ class TiroMosca:
         self.history = [[], []]
         self.rounds = [0, 0]
 
-    def reset_player(self, player):
+    def reset_player(self, player, turn):
         self.reset_players[player] = True
         if all(self.reset_players):
-            self.reset()
+            self.reset(turn)
             self.reset_players = [False, False]
 
     def quit_game(self, player):
