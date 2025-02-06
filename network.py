@@ -4,11 +4,12 @@ import pickle  # converte objetos Python (como listas, dicionários, classes, et
 
 
 class Network:
-    def __init__(self):
+    def __init__(self, type):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = 'ip'
         self.port = 8080
         self.addr = (self.server, self.port)
+        self.type = type
         self.p = self.connect()
 
     def getP(self):
@@ -17,6 +18,7 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
+            self.client.send(self.type.encode())
             return self.client.recv(4096).decode()  # recebe p do servidor
         except socket.error as msg:
             print(msg)

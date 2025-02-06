@@ -255,8 +255,13 @@ def draw_reset(window, game, player):
 def main(tipo_jogo):
     clock = pygame.time.Clock()
     running = True
-    n = Network()
-
+    
+    try:
+        n = Network(tipo_jogo)
+    except Exception as e:
+        print(f"Erro ao enviar tipo de jogo: {e}")
+        running = False
+    
     # Obter nome do jogador
     player_name = get_player_name()
 
