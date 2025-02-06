@@ -38,6 +38,9 @@ def threaded_client(conn, player, gameId, game_type):
             if gameId in games:
                 game = games[gameId]
 
+                if game.quit:
+                    break
+
                 if not data:
                     print("Conexão encerrada")
                     break
@@ -68,6 +71,7 @@ def threaded_client(conn, player, gameId, game_type):
                         print("Algum jogador saiu da partida")
                         print("Excluindo jogo...")
                         game.quit_game(player)
+                        break
                         # if game_type == "multiplayer":
                         #     idCount -= 1
                         # else:
@@ -92,7 +96,6 @@ def threaded_client(conn, player, gameId, game_type):
         idCount -= 1
     else:
         singlePlayerIdCount -= 1
-
     conn.close()
 
 while True:

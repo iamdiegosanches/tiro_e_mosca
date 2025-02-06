@@ -26,7 +26,7 @@ class Network:
     def send(self, data):
         try:
             self.client.send(data.encode())
-            data = self.client.recv(4096)
+            data = self.client.recv(12*4096)
             if not data:
                 print("Nenhum dado recebido do servidor.")
                 return None
