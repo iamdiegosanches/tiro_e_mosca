@@ -79,6 +79,9 @@ class TiroMosca:
         if not self.singlePlayer:
             self.turn = 1 - self.turn
 
+        if len(self.history) > 5:
+            self.history[player].pop(0)
+
         # Verifica condição de vitória
         if self.mosca == 3:
             self.winner = player
