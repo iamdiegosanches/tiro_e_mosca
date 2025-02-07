@@ -74,7 +74,7 @@ def get_player_name():
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and name.strip():
+                if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER) and name.strip():
                     active = False
                 elif event.key == pygame.K_BACKSPACE:
                     name = name[:-1]
@@ -105,7 +105,7 @@ def set_secret_number(n):
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and len(secret) == 3:
+                if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER) and len(secret) == 3:
                     try:
                         n.send(f"set_numbers:{','.join(map(str, secret))}")
                         feedback = "Número secreto enviado com sucesso!"
@@ -420,7 +420,7 @@ def main(tipo_jogo):
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_RETURN and len(guess) == 3:
+                        if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER) and len(guess) == 3:
                             try:
                                 n.send(f"play:{','.join(map(str, guess))}")
                                 feedback = f"Palpite enviado: {guess}"
