@@ -50,7 +50,7 @@ def get_player_name():
 
     while active:
         screen.fill(bg_color)
-        prompt = font.render("Digite seu nome e pressione Enter:", True, text_color)
+        prompt = font.render("Envie Seu Nome:", True, text_color)
         screen.blit(prompt, (width // 2 - prompt.get_width() // 2, height // 3))
 
         # Desenha o nome e o cursor
@@ -67,6 +67,10 @@ def get_player_name():
             cursor_visible = not cursor_visible
             cursor_blink_time = pygame.time.get_ticks()
 
+        enviar_rect = pygame.Rect(500, 350, 100, 50)
+        pygame.draw.rect(screen, menu_hover_color if enviar_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, enviar_rect, border_radius=10)
+        draw_text_centered("Enviar", font_history, text_color, screen, enviar_rect.centerx, enviar_rect.centery)
+
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -80,6 +84,12 @@ def get_player_name():
                     name = name[:-1]
                 else:
                     name += event.unicode
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if enviar_rect.collidepoint(mouse_pos):
+                    active = False
+
     return name.strip()
 
 def set_secret_number(n):
@@ -163,6 +173,10 @@ def draw_game(window, game, player, player_name, guess, feedback):
                 pygame.mouse.get_pos()) else menu_button_color, sair_rect, border_radius=10)
             draw_text_centered("Sair", font, text_color, screen, sair_rect.centerx,
                                 sair_rect.centery)
+            
+            enviar_rect = pygame.Rect(550, 280, 100, 50)
+            pygame.draw.rect(screen, menu_hover_color if enviar_rect.collidepoint(pygame.mouse.get_pos()) else menu_button_color, enviar_rect, border_radius=10)
+            draw_text_centered("Enviar", font_history, text_color, screen, enviar_rect.centerx, enviar_rect.centery)
 
             # Exibir histórico de palpites do jogador atual
             history_y_player = 100
@@ -396,7 +410,7 @@ def main(tipo_jogo):
                                     menu_screen()
                             except Exception as e:
                                 print(f"Erro ao processar desistência: {e}")
-
+                
                 if game.ready and game.winner is not None and game.singlePlayer:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_pos = pygame.mouse.get_pos()
@@ -417,6 +431,8 @@ def main(tipo_jogo):
                                 running = False
                             else:
                                 menu_screen()
+                
+                enviar_rect = pygame.Rect(550, 280, 100, 50)
 
                 if game.ready and (game.post_secret and game.turn == player or game.singlePlayer) and game.winner is None:
                     if event.type == pygame.KEYDOWN:
@@ -432,6 +448,17 @@ def main(tipo_jogo):
                         elif event.unicode.isdigit() and len(guess) < 3:
                             guess.append(int(event.unicode))
                             feedback = f"Palpite atual: {guess}"
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if enviar_rect.collidepoint(mouse_pos) and len(guess) == 3:
+                            try:
+                                n.send(f"play:{','.join(map(str, guess))}")
+                                feedback = f"Palpite enviado: {guess}"
+                                guess = []
+                            except Exception as e:
+                                feedback = f"Erro ao enviar palpite: {e}"
+
                 
 
 
