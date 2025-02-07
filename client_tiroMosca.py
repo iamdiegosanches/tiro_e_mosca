@@ -489,6 +489,8 @@ def menu_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                print("Cliquei no botão X")
+                tipo_jogo = ""
                 pygame.quit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -499,8 +501,8 @@ def menu_screen():
                 if computer_rect.collidepoint(mouse_pos):
                     tipo_jogo = "computador"
                     run = False
-
-    main(tipo_jogo)
+    if tipo_jogo != "":
+        main(tipo_jogo)
 
 
 if __name__ == "__main__":
