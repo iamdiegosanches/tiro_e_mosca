@@ -136,7 +136,7 @@ def set_computer_secret_number(n):
     except Exception as e:
         print("Erro ao iniciar o número secreto")
 
-def draw_game(window, game, player, player_name, guess, feedback):
+def draw_game(window, game, player, player_name, guess, feedback, secret):
     """Desenha o estado do jogo na tela."""
     window.fill(bg_color)
 
@@ -182,6 +182,14 @@ def draw_game(window, game, player, player_name, guess, feedback):
             history_y_player = 100
             player_history_title = font.render("Seus palpites:", True, text_color)
             window.blit(player_history_title, (10, 70))
+
+            # Exibir numero secreto
+            if secret != "":
+                player_secret_title = font.render("Seu número:", True, text_color)
+                window.blit(player_secret_title, (250, 70))
+
+                secret_number_text = font.render("".join(map(str, secret)), True, text_color)
+                window.blit(secret_number_text, (250, 100))
 
             for entry in game.history[player][-5:]:  # Últimos 5 palpites
                 palpite, tiros, moscas = entry
@@ -269,7 +277,8 @@ def draw_reset(window, game, player):
 def main(tipo_jogo):
     clock = pygame.time.Clock()
     running = True
-    
+    secret = ""
+
     try:
         n = Network(tipo_jogo)
     except Exception as e:
@@ -310,7 +319,7 @@ def main(tipo_jogo):
             break
 
         if not (game.reset_players[player] or game.reset_players[1 - player]):
-            draw_game(screen, game, player, player_name, guess, feedback)
+            draw_game(screen, game, player, player_name, guess, feedback, secret)
 
         if isinstance(game, TiroMosca):
             if game.secret == [["" for _ in range(3)] for _ in range(2)] and not game.singlePlayer:
@@ -459,8 +468,6 @@ def main(tipo_jogo):
                             except Exception as e:
                                 feedback = f"Erro ao enviar palpite: {e}"
 
-                
-
 
 def menu_screen():
     run = True
@@ -489,7 +496,6 @@ def menu_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                print("Cliquei no botão X")
                 tipo_jogo = ""
                 pygame.quit()
 
